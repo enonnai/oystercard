@@ -9,7 +9,9 @@ class Oystercard
   def top_up(amount)
     fail "The balance exceeds the #{Oystercard::MAX_BALANCE} pounds limit" if @balance + amount > MAX_BALANCE
     @balance += amount
-    amount
   end
 
+  def deduct()
+    @balance -= 2.5
+  end
 end
