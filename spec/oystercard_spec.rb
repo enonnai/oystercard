@@ -18,13 +18,6 @@ describe Oystercard do
     end
   end
 
-  describe '#deduct' do
-    before {subject.top_up(Oystercard::MAX_BALANCE)}
-    it 'deducts a single journey fare from a card' do
-      expect(subject.deduct).to eq(subject.balance)
-    end
-  end
-
   describe '#touch_in' do
     context 'when a customer does not have min. amount for a journey' do
       before(:example) { subject.top_up(Oystercard::MIN_AMOUNT-1) }
@@ -34,27 +27,33 @@ describe Oystercard do
         expect {subject.touch_in}.to raise_error message
       end
     end
-  end
 
-      context 'when a card has been topped up' do
-        before(:example) {subject.top_up(Oystercard::MAX_BALANCE)}
-
-        it 'is initially not in a journey' do
-          expect(subject).not_to be_in_journey
-        end
-
-        it 'has touched in and is in a jouney' do
-          subject.touch_in
-          expect(subject).to be_in_journey
-        end
+    context 'when a card has been topped up' do
+      before(:example) {subject.top_up(Oystercard::MAX_BALANCE)}
+      it 'is initially not in a journey' do
+        expect(subject).not_to be_in_journey
       end
 
-      describe '#touch_out' do
-        before(:example) {subject.top_up(Oystercard::MAX_BALANCE)}
-        it 'has touched out and is not in a jouney' do
+      it 'has touched in and is in a jouney' do
         subject.touch_in
-        subject.touch_out
-        expect(subject).not_to be_in_journey
+        expect(subject).to be_in_journey
       end
     end
   end
+
+  describe '#touch_out' do
+      before(:example) do
+        subject.top_up(Oystercard::MAX_BALANCE)
+        subject.touch_in
+      end
+
+      it 'has touched out and is not in a jouney' do
+        subject.touch_out
+        expect(subject).not_to be_in_journey
+    end
+
+    it 'charges the customer' do
+      expect {subject.touch_out}.to change{subject.balance}.by(-Oystercard::MIN_AMOUNT)
+    end
+  end
+end
