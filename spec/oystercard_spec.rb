@@ -2,8 +2,7 @@ require 'oystercard'
 
 describe Oystercard do
   it 'a new card has a balance of 0' do
-    card = Oystercard.new
-    expect(card.balance).to eq 0
+    expect(subject.balance).to eq 0
   end
 
   describe '#top_up' do
@@ -14,7 +13,8 @@ describe Oystercard do
     end
 
     it 'raises an error if topup exceeds limit' do
-      expect { subject.top_up(Oystercard::MAX_BALANCE+1)}.to raise_error "The balance exceeds the #{Oystercard::MAX_BALANCE} pounds limit"
+      message = "The balance exceeds the #{Oystercard::MAX_BALANCE} pounds limit"
+      expect { subject.top_up(Oystercard::MAX_BALANCE+1)}.to raise_error message
     end
   end
 
@@ -26,25 +26,35 @@ describe Oystercard do
   end
 
   describe '#touch_in' do
-    before(:example) {subject.top_up(Oystercard::MAX_BALANCE)}
+    context 'when a customer does not have min. amount for a journey' do
+      before(:example) { subject.top_up(Oystercard::MIN_AMOUNT-1) }
 
-    it 'is initially not in a journey' do
-      expect(subject).not_to be_in_journey
-    end
-
-    it 'has touched in and is in a jouney' do
-      subject.touch_in
-      expect(subject).to be_in_journey
+      it 'throws an error' do
+        message = "Insufficient balance. £#{Oystercard::MIN_AMOUNT} is the minimum amount."
+        expect {subject.touch_in}.to raise_error message
+      end
     end
   end
 
-  describe '#touch_out' do
+      context 'when a card has been topped up' do
+        before(:example) {subject.top_up(Oystercard::MAX_BALANCE)}
 
-    it 'has touched out and is not in a jouney' do
-      subject.touch_in
-      subject.touch_out
-      expect(subject).not_to be_in_journey
+        it 'is initially not in a journey' do
+          expect(subject).not_to be_in_journey
+        end
+
+        it 'has touched in and is in a jouney' do
+          subject.touch_in
+          expect(subject).to be_in_journey
+        end
+      end
+
+      describe '#touch_out' do
+        before(:example) {subject.top_up(Oystercard::MAX_BALANCE)}
+        it 'has touched out and is not in a jouney' do
+        subject.touch_in
+        subject.touch_out
+        expect(subject).not_to be_in_journey
+      end
     end
   end
-
-end
