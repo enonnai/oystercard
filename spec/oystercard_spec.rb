@@ -8,7 +8,7 @@ describe Oystercard do
   end
 
   it 'a new card has an empty list of journeys' do
-    expect(subject.journeys).to eq({:entry_station=>" ", :exit_station=>" "})
+    expect(subject.journeys).to eq []
   end
 
   describe '#top_up' do
@@ -50,7 +50,7 @@ describe Oystercard do
 
       it 'remembers the entry station' do
         subject.touch_in(entry_station)
-        expect(subject.journeys).to include :entry_station
+        expect(subject.journeys).to include{:entry_station}
       end
     end
   end
@@ -75,11 +75,11 @@ describe Oystercard do
     end
 
     it 'forgets about the entry station' do
-      expect(subject.journeys).to include :exit_station
+      expect(subject.journeys).to include {:exit_station}
     end
 
     it 'stores the exit station'do
-      expect(subject.journeys).to include :exit_station
+      expect(subject.journeys).to include {:exit_station}
     end
 
     it 'stores a journey' do
