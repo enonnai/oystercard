@@ -1,3 +1,5 @@
+require './lib/journey'
+
 class Oystercard
   MAX_AMOUNT = 90
   MIN_AMOUNT = 1
@@ -8,7 +10,6 @@ class Oystercard
     @balance = 0
     @in_journey = false
     @journeys = []
-    @journey = {:entry_station => " ", :exit_station => " "}
   end
 
   def top_up(amount)
@@ -18,12 +19,7 @@ class Oystercard
 
   def touch_in(station)
     fail "Insufficient balance. £#{Oystercard::MIN_AMOUNT} is the minimum amount." if balance < MIN_AMOUNT
-    @in_journey = true
-    @journey[:entry_station] = station
-  end
-
-  def in_journey?
-    !!in_journey
+    start(station)
   end
 
   def touch_out(station)
