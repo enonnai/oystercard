@@ -5,6 +5,10 @@ describe Oystercard do
     expect(subject.balance).to eq 0
   end
 
+  it 'a new card has an empty list of journeys' do
+    expect(subject.journeys).to eq([{:entry_station=>" ", :exit_station=>" "}])
+  end
+
   describe '#top_up' do
     #it { is_expected.to respond_to(:top_up).with(1).argument }
 
@@ -73,6 +77,12 @@ describe Oystercard do
       subject.touch_out(station)
       expect(subject.exit_station).to eq(station)
     end
-      
+
+    it 'creates one journey' do
+      subject.touch_out(station)
+      expect(subject.journeys).to eq([{:entry_station=> station, :exit_station=> station}])
+    end
   end
+
+
 end
