@@ -19,13 +19,22 @@ class Oystercard
 
   def touch_in(station)
     fail "Insufficient balance. £#{Oystercard::MIN_AMOUNT} is the minimum amount." if balance < MIN_AMOUNT
-    @journey = Journey.new(station)
+    @in_journey = true
+    journey = Journey.new
+    journey.start_journey(station)
+    @journeys << journey
+    "#{@balance}"
   end
 
   def touch_out(station)
     deduct(MIN_AMOUNT)
-    @journey.finish(station)
+    @in_journey = true
+    @journeys.last.finish_journey(station)
     reset_journey
+  end
+
+  def in_journey?
+    !!in_journey
   end
 
   private
