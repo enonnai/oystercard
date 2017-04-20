@@ -56,17 +56,23 @@ describe Oystercard do
       end
 
       it 'has touched out and is not in a jouney' do
-        subject.touch_out
+        subject.touch_out(station)
         expect(subject).not_to be_in_journey
     end
 
     it 'charges the customer' do
-      expect {subject.touch_out}.to change{subject.balance}.by(-Oystercard::MIN_AMOUNT)
+      expect {subject.touch_out(station)}.to change{subject.balance}.by(-Oystercard::MIN_AMOUNT)
     end
 
     it 'forgets about the entry station' do
-      subject.touch_out
+      subject.touch_out(station)
       expect(subject.entry_station).to eq nil
     end
+
+    it 'stores the exit station'do
+      subject.touch_out(station)
+      expect(subject.exit_station).to eq(station)
+    end
+      
   end
 end
