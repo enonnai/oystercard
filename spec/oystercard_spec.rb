@@ -1,6 +1,8 @@
 require 'oystercard'
 
 describe Oystercard do
+  let(:max_balance) { Oystercard::MAX_AMOUNT }
+
   it 'a new card has a balance of 0' do
     expect(subject.balance).to eq 0
   end
@@ -17,8 +19,8 @@ describe Oystercard do
     end
 
     it 'raises an error if topup exceeds limit' do
-      message = "The balance exceeds the #{Oystercard::MAX_BALANCE} pounds limit"
-      expect { subject.top_up(Oystercard::MAX_BALANCE+1)}.to raise_error message
+      message = "The balance exceeds the #{Oystercard::MAX_AMOUNT} pounds limit"
+      expect { subject.top_up(max_balance+1)}.to raise_error message
     end
   end
 
@@ -34,7 +36,7 @@ describe Oystercard do
     end
 
     context 'when a card has been topped up' do
-      before(:example) {subject.top_up(Oystercard::MAX_BALANCE)}
+      before(:example) {subject.top_up(max_balance)}
       let(:station) { station = double()}
       it 'is initially not in a journey' do
         expect(subject).not_to be_in_journey
@@ -55,13 +57,13 @@ describe Oystercard do
   describe '#touch_out' do
     let(:station) { station = double()}
       before(:example) do
-        subject.top_up(Oystercard::MAX_BALANCE)
+        subject.top_up(max_balance)
         subject.touch_in(station)
+        subject.touch_out(station)
       end
 
-      it 'has touched out and is not in a jouney' do
-        subject.touch_out(station)
-        expect(subject).not_to be_in_journey
+    it 'has touched out and is not in a jouney' do  
+      expect(subject).not_to be_in_journey
     end
 
     it 'charges the customer' do
@@ -69,17 +71,14 @@ describe Oystercard do
     end
 
     it 'forgets about the entry station' do
-      subject.touch_out(station)
       expect(subject.entry_station).to eq nil
     end
 
     it 'stores the exit station'do
-      subject.touch_out(station)
       expect(subject.exit_station).to eq(station)
     end
 
     it 'creates one journey' do
-      subject.touch_out(station)
       expect(subject.journeys).to eq([{:entry_station=> station, :exit_station=> station}])
     end
   end

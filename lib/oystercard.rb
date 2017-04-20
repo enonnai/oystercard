@@ -1,5 +1,5 @@
 class Oystercard
-  MAX_BALANCE = 90
+  MAX_AMOUNT = 90
   MIN_AMOUNT = 1
 
   attr_reader :balance, :in_journey, :entry_station, :exit_station, :journeys
@@ -13,7 +13,7 @@ class Oystercard
   end
 
   def top_up(amount)
-    fail "The balance exceeds the #{Oystercard::MAX_BALANCE} pounds limit" if balance + amount > MAX_BALANCE
+    fail "The balance exceeds the #{Oystercard::MAX_AMOUNT} pounds limit" if balance + amount > MAX_AMOUNT
     @balance += amount
   end
 
@@ -30,14 +30,18 @@ class Oystercard
 
   def touch_out(station)
     deduct(MIN_AMOUNT)
-    @in_journey = false
     @exit_station = station
     @journeys[0][:exit_station] = @exit_station
-    @entry_station = nil
+    reset_journey
   end
 
   private
   attr_writer :balance, :in_journey
+  
+  def reset_journey
+    @in_journey = false
+    @entry_station = nil
+  end
 
   def deduct(amount)
     @balance -= amount
