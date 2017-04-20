@@ -8,7 +8,7 @@ describe Oystercard do
   end
 
   it 'a new card has an empty list of journeys' do
-    expect(subject.journeys).to eq([{:entry_station=>" ", :exit_station=>" "}])
+    expect(subject.journeys).to eq({:entry_station=>" ", :exit_station=>" "})
   end
 
   describe '#top_up' do
@@ -36,52 +36,57 @@ describe Oystercard do
     end
 
     context 'when a card has been topped up' do
+      let(:journey){ {entry_station: entry_station, exit_station: exit_station} }
       before(:example) {subject.top_up(max_balance)}
-      let(:station) { station = double()}
+      let(:entry_station) { station = double()}
       it 'is initially not in a journey' do
         expect(subject).not_to be_in_journey
       end
 
       it 'has touched in and is in a jouney' do
-        subject.touch_in(station)
+        subject.touch_in(entry_station)
         expect(subject).to be_in_journey
       end
 
       it 'remembers the entry station' do
-        subject.touch_in(station)
-        expect(subject.entry_station).to eq station
+        subject.touch_in(entry_station)
+        expect(subject.journeys).to include :entry_station
       end
     end
   end
 
   describe '#touch_out' do
-    let(:station) { station = double()}
+    context 'when a journey is complete' do
+      let(:journey){ {entry_station: entry_station, exit_station: exit_station} }
+      let(:entry_station) { station = double()}
+      let(:exit_station) { station = double()}
       before(:example) do
         subject.top_up(max_balance)
-        subject.touch_in(station)
-        subject.touch_out(station)
+        subject.touch_in(entry_station)
+        subject.touch_out(exit_station)
       end
 
-    it 'has touched out and is not in a jouney' do  
+    it 'has touched out and is not in a jouney' do
       expect(subject).not_to be_in_journey
     end
 
     it 'charges the customer' do
-      expect {subject.touch_out(station)}.to change{subject.balance}.by(-Oystercard::MIN_AMOUNT)
+      expect {subject.touch_out(exit_station)}.to change{subject.balance}.by(-Oystercard::MIN_AMOUNT)
     end
 
     it 'forgets about the entry station' do
-      expect(subject.entry_station).to eq nil
+      expect(subject.journeys).to include :exit_station
     end
 
     it 'stores the exit station'do
-      expect(subject.exit_station).to eq(station)
+      expect(subject.journeys).to include :exit_station
     end
 
-    it 'creates one journey' do
-      expect(subject.journeys).to eq([{:entry_station=> station, :exit_station=> station}])
+    it 'stores a journey' do
+      expect(subject.journeys).to include journey
     end
   end
+end
 
 
 end
